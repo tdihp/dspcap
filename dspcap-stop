@@ -1,0 +1,34 @@
+#!/bin/bash
+set -e 
+set -o pipefail
+PIDFILE=/var/run/dspcap.pid
+KILL_COMMAND="$(cat <<EOF
+if [ -f "$PIDFILE" ]; then
+  echo "killing pcap"
+  pkill -SIGINT -F$PIDFILE
+fi
+EOF
+)"
+TAR_COMMAND="cd /tmp && tar zvc dspcap"
+DEL_COMMAND="rm -rf /tmp/dspcap"
+
+pods=`kubectl get po -l app=dspcap -o name`
+
+for po in `echo "$pods"`; do
+  echo "run killing for $po"
+  kubectl exec "$po" -- bash -c "$KILL_COMMAND"
+done
+
+for po in `echo "$pods"`; do
+  echo "downloading for $po"
+  kubectl exec "$po" -- bash -c "$TAR_COMMAND" | tar zvx
+done
+
+for po in `echo "$pods"`; do
+  echo "cleanup for $po"
+  kubectl exec "$po" -- bash -c "$DEL_COMMAND"
+done
+
+kubectl delete ds/dspcap
+
+echo "All done, cheers."
