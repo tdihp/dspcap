@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e 
 set -o pipefail
-STARTTIME=$(date -u +%Y-%m-%dT%H:%M)
+STARTTIME=$(date -u +%Y-%m-%dT%Hh%M)
 PIDFILE=/var/run/dspcap.pid
 
 cat <<EOF | kubectl apply -f -
