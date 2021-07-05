@@ -11,24 +11,25 @@ EOF
 )"
 TAR_COMMAND="cd /tmp && tar zvc dspcap"
 DEL_COMMAND="rm -rf /tmp/dspcap"
+NAMESPACE=default
 
-pods=`kubectl get po -l app=dspcap -o name`
+pods=`kubectl get po -n $NAMESPACE -l app=dspcap -o name`
 
 for po in `echo "$pods"`; do
   echo "run killing for $po"
-  kubectl exec "$po" -- bash -c "$KILL_COMMAND"
+  kubectl exec -n $NAMESPACE "$po" -- bash -c "$KILL_COMMAND"
 done
 
 for po in `echo "$pods"`; do
   echo "downloading for $po"
-  kubectl exec "$po" -- bash -c "$TAR_COMMAND" | tar zvx
+  kubectl exec -n $NAMESPACE "$po" -- bash -c "$TAR_COMMAND" | tar zvx
 done
 
 for po in `echo "$pods"`; do
   echo "cleanup for $po"
-  kubectl exec "$po" -- bash -c "$DEL_COMMAND"
+  kubectl exec -n $NAMESPACE "$po" -- bash -c "$DEL_COMMAND"
 done
 
-kubectl delete ds/dspcap
+kubectl delete -n $NAMESPACE ds/dspcap
 
 echo "All done, cheers."
