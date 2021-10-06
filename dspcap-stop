@@ -1,4 +1,11 @@
 #!/bin/bash
+
+if [ $# -ne 2 ]; then
+echo "./dspcap clustercontext k8snamespace"
+echo "ex: ./dspcap aks-je2029stblue-001 default"
+exit 1
+fi
+
 set -e 
 set -o pipefail
 PIDFILE=/var/run/dspcap.pid
@@ -11,25 +18,26 @@ EOF
 )"
 TAR_COMMAND="cd /tmp && tar zvc dspcap"
 DEL_COMMAND="rm -rf /tmp/dspcap"
-NAMESPACE=default
+NAMESPACE=$2
+CONTEXT=$1
 
-pods=`kubectl get po -n $NAMESPACE -l app=dspcap -o name`
+pods=`kubectl get po --context $CONTEXT -n $NAMESPACE -l app=dspcap -o name`
 
 for po in `echo "$pods"`; do
   echo "run killing for $po"
-  kubectl exec -n $NAMESPACE "$po" -- bash -c "$KILL_COMMAND"
+  kubectl exec --context $CONTEXT  -n $NAMESPACE "$po" -- bash -c "$KILL_COMMAND"
 done
 
 for po in `echo "$pods"`; do
   echo "downloading for $po"
-  kubectl exec -n $NAMESPACE "$po" -- bash -c "$TAR_COMMAND" | tar zvx
+  kubectl exec --context $CONTEXT -n $NAMESPACE "$po" -- bash -c "$TAR_COMMAND" | tar zvx
 done
 
 for po in `echo "$pods"`; do
   echo "cleanup for $po"
-  kubectl exec -n $NAMESPACE "$po" -- bash -c "$DEL_COMMAND"
+  kubectl exec --context $CONTEXT -n $NAMESPACE "$po" -- bash -c "$DEL_COMMAND"
 done
 
-kubectl delete -n $NAMESPACE ds/dspcap
+kubectl delete --context $CONTEXT -n $NAMESPACE ds/dspcap
 
 echo "All done, cheers."
