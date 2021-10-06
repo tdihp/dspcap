@@ -1,11 +1,19 @@
 #!/bin/bash
+
+if [ $# -ne 2 ]; then
+echo "./dspcap clustercontext k8snamespace"
+echo "ex: ./dspcap aks-je2029stblue-001 default"
+exit 1
+fi
+
 set -e 
 set -o pipefail
 STARTTIME=$(date -u +%Y-%m-%dT%H:%M)
 PIDFILE=/var/run/dspcap.pid
-NAMESPACE=default
+NAMESPACE=$2
+CONTEXT=$1
 
-cat <<EOF | kubectl apply -f -
+cat <<EOF | kubectl apply --context $CONTEXT --namespace $NAMESPACE -f -
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
