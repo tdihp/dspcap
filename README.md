@@ -13,7 +13,7 @@ As simple as:
 
 ### Finetune tcpdump command
 
-In dspcap-start, locate the tcpdump line after `echo "starting pcap"` and modify according to requirement.
+Modify `TCPDUMP_ARGS` line at the top of dspcap-start accordingly. Alternatively, locate and modify the `tcpdump` line.
 
 ### images
 
