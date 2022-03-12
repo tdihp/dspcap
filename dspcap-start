@@ -4,6 +4,9 @@ set -o pipefail
 STARTTIME=$(date -u +%Y-%m-%dT%H:%M)
 PIDFILE=/var/run/dspcap.pid
 NAMESPACE=default
+IMAGE=alpine:3.15
+# IMAGE=mcr.microsoft.com/dotnet/runtime-deps:6.0
+TCPDUMP_ARGS="-i any -s 100 -C 100"
 
 cat <<EOF | kubectl apply -f -
 apiVersion: apps/v1
@@ -29,21 +32,20 @@ spec:
       - name: tcpdump
         command:
         - nsenter
-        - -a
-        - -t
-        - "1"
+        - --mount=/proc/1/ns/mnt
+        - --
         - bash
         - -xc
         - |
           mkdir -p /tmp/dspcap
           echo "starting pcap"
-          tcpdump -i any -s 100 -C 100 -w "/tmp/dspcap/$STARTTIME.\$(hostname).pcap" &
+          tcpdump $TCPDUMP_ARGS -w "/tmp/dspcap/$STARTTIME.\$(hostname).pcap" &
           echo \$! >$PIDFILE
           wait
           rm $PIDFILE
           echo "sleeping forever"
           sleep infinity
-        image: ubuntu
+        image: $IMAGE
         resources:
           requests:
             cpu: 50m
