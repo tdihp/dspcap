@@ -54,3 +54,12 @@ Then label the target nodes, if not already applied:
 kubectl label node/mynode1 foo=bar
 kubectl label node/mynode2 foo=bar
 ```
+
+## Caveat
+
+The current dspcap implementation uses a previleged pod to access root.
+`nsenter` is used to get access to root for reaching tcpdump. We do not advise
+to use the current setting as-is to take long-term capture for the security
+implication involved. Note however that this can be easily averted by using
+capabilities instead of privilege to limit the impact, and to download tcpdump
+package in the pod instead of using the one on the node via nsenter.
