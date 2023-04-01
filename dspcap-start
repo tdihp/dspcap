@@ -38,6 +38,7 @@ spec:
         - -xc
         - |
           mkdir -p /tmp/dspcap
+          chmod 777 /tmp/dspcap
           echo "starting pcap"
           tcpdump $TCPDUMP_ARGS -w "/tmp/dspcap/$STARTTIME.\$(hostname).pcap" &
           echo \$! >$PIDFILE
