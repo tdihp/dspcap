@@ -6,7 +6,7 @@ PIDFILE=/var/run/dspcap.pid
 NAMESPACE=default
 IMAGE=alpine:3.15
 # IMAGE=mcr.microsoft.com/dotnet/runtime-deps:6.0
-TCPDUMP_ARGS="-i any -s 100 -C 100"
+TCPDUMP_ARGS="-ni eth0 -e -C 300 -G 1800 -K -W 10"
 
 cat <<EOF | kubectl apply -f -
 apiVersion: apps/v1
